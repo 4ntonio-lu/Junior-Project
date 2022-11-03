@@ -1,15 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
+
 //part 'index.g.dart';
 
-void main() {
-  //runApp(const MyApp());
-  getReminders();
+void main() async {
+  runApp(MyApp());
+  print("ok");
+  String reminders = await idk();
+  print(reminders);
 }
 
 Future<String> get _localPath async {
@@ -19,30 +23,65 @@ Future<String> get _localPath async {
 
 Future<File> get _localFile async {
   final path = await _localPath;
-  return File('$path/Resources/index.json');
+  return File('$path/index.json');
 }
 
-/*Future<List<Reminder>>*/int getReminders() async {
+Future<String> writeAndRead() async {
   try {
     final file = await _localFile;
+    file.writeAsString('okokokokokokook');
+    return file.readAsString();
+  }
+  catch (e) {
+    return "no";
+  }
+}
 
-    // Read the file
+Future<String> idk() async {
+  try {
+    final file = await _localFile;
+    Reminder r = Reminder(isComplete: false,
+        priority: 3,
+        name: "do laundry",
+        description: "idk",
+        dateTime: DateTime.utc(1944, 6, 6).toString(),
+        repeat: "Daily");
+    print(jsonEncode(r.toJson()));
+    file.writeAsString(jsonEncode(r));
+    print("maybe");
+    final s = await file.readAsString();
+    return s;
+  } catch (e) {
+  // If encountering an error, return 0
+    return "no";
+  }
+}
+
+Future<List<Reminder>> getReminders() async {
+  try {
+    final file = await _localFile;
+    Reminder r = Reminder(isComplete: false, priority: 3, name: "do laundry", description: "idk", dateTime: DateTime.utc(1944, 6, 6).toString(), repeat: "Daily");
+
+    file.writeAsString(jsonEncode(r.toJson()));
     final jsonString = await file.readAsString();
+
     Iterable l = json.decode(jsonString);
     List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
-    return 1;
+
+    return reminders;
   } catch (e) {
     // If encountering an error, return 0
-    return 0;
+    return List.empty();
   }
 }
 
 class Reminder {
-  String name;
+  Reminder({required this.isComplete, required this.priority, required this.name, required this.description, required this.dateTime, required this.repeat});
   bool isComplete;
   int priority;
+  String name;
   String description;
-  DateTime dateTime;
+  String dateTime;
   String repeat;
   Reminder.fromJson(Map<String, dynamic> json)
       : isComplete = json['isComplete'],
@@ -51,6 +90,14 @@ class Reminder {
         description = json['description'],
         dateTime = json['dateTime'],
         repeat = json['repeat'];
+  Map<String, dynamic> toJson() => {
+    'isComplete': isComplete,
+    'priority': priority,
+    'name': name,
+    'description': description,
+    'dateTime': dateTime,
+    'repeat': repeat
+  };
 }
 
 class MyApp extends StatelessWidget {
