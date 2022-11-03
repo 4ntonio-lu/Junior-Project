@@ -1,0 +1,18 @@
+[
+  {
+    "isComplete": false,
+    "priority": 2,
+    "name": "do laundry",
+    "description": "idk",
+    "dateTime": "2020-02-25 14:44:28.534",
+    "repeat": "Daily"
+  },
+  {
+    "isComplete": true,
+    "priority": 5,
+    "name": "do homework",
+    "description": "idk",
+    "dateTime": "2020-02-15 14:44:28.534",
+    "repeat": "Weekly"
+  }
+]

@@ -1,7 +1,56 @@
+import 'package:json_annotation/json_annotation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:io';
+
+//part 'index.g.dart';
 
 void main() {
-  runApp(const MyApp());
+  //runApp(const MyApp());
+  getReminders();
+}
+
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
+}
+
+Future<File> get _localFile async {
+  final path = await _localPath;
+  return File('$path/Resources/index.json');
+}
+
+/*Future<List<Reminder>>*/int getReminders() async {
+  try {
+    final file = await _localFile;
+
+    // Read the file
+    final jsonString = await file.readAsString();
+    Iterable l = json.decode(jsonString);
+    List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+    return 1;
+  } catch (e) {
+    // If encountering an error, return 0
+    return 0;
+  }
+}
+
+class Reminder {
+  String name;
+  bool isComplete;
+  int priority;
+  String description;
+  DateTime dateTime;
+  String repeat;
+  Reminder.fromJson(Map<String, dynamic> json)
+      : isComplete = json['isComplete'],
+        priority = json['priority'],
+        name = json['name'],
+        description = json['description'],
+        dateTime = json['dateTime'],
+        repeat = json['repeat'];
 }
 
 class MyApp extends StatelessWidget {
