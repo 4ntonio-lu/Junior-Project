@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
+import 'notifications.dart';
+
 
 //part 'index.g.dart';
 
@@ -202,10 +204,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: createNotification, //_incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+
     );
   }
 }
