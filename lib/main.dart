@@ -1,37 +1,32 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'notifications.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
-//part 'index.g.dart';
-
 void main() async {
+  AwesomeNotifications().initialize(null, [
+    NotificationChannel(
+      channelKey: 'basic_channel',
+      channelName: 'Basic notif',
+      channelDescription: 'hey',
+      importance: NotificationImportance.High,
+      channelShowBadge: true,
+    )
+  ]);
   runApp(MyApp());
-  Reminder r1 = Reminder(isComplete: false,
-      priority: 3,
-      name: "do laundry",
-      description: "idk",
-      dateTime: DateTime.utc(2022, 6, 6).toString(),
-      repeat: "Daily");
-  Reminder r2 = Reminder(isComplete: true,
-      priority: 1,
-      name: "do homework",
-      description: "CST Homework",
-      dateTime: DateTime.utc(1944, 7, 9).toString(),
-      repeat: "Weekly");
-  List<Reminder> reminders = [r1, r2];
-  writeReminders(reminders);
 }
 
 Future<List<Reminder>> readReminders() async {
   try {
     final file = await _localFile;
     Iterable l = json.decode(await file.readAsString());
-    List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+    List<Reminder> reminders =
+        List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
     return reminders;
   } catch (e) {
-    // If encountering an error, return 0
     return List.empty();
   }
 }
@@ -55,14 +50,26 @@ Future<String> get _localPath async {
   return directory.path;
 }
 
+enum Priority { low, medium, high }
+
+enum Repeat { daily, weekly, monthly, yearly }
+
 class Reminder {
-  Reminder({required this.isComplete, required this.priority, required this.name, required this.description, required this.dateTime, required this.repeat});
+  Reminder(
+      {required this.isComplete,
+      required this.priority,
+      required this.name,
+      required this.description,
+      required this.dateTime,
+      required this.repeat});
+
   bool isComplete;
-  int priority;
+  Priority priority;
   String name;
   String description;
   String dateTime;
-  String repeat;
+  Repeat repeat;
+
   Reminder.fromJson(Map<String, dynamic> json)
       : isComplete = json['isComplete'],
         priority = json['priority'],
@@ -70,13 +77,14 @@ class Reminder {
         description = json['description'],
         dateTime = json['dateTime'],
         repeat = json['repeat'];
+
   Map<String, dynamic> toJson() => {
-    'isComplete': isComplete,
-    'priority': priority,
-    'name': name,
-    'description': description,
-    'dateTime': dateTime,
-    'repeat': repeat
+        'isComplete': isComplete,
+        'priority': priority,
+        'name': name,
+        'description': description,
+        'dateTime': dateTime,
+        'repeat': repeat
   };
 }
 
@@ -87,7 +95,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Project Demo',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -138,54 +146,65 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  @override
+  void initState() {
+    super.initState();
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                    title: Text('Allow Notifications'),
+                    content: Text('Our app would like to send notifications.'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          'Dont allow',
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                          onPressed: () => AwesomeNotifications()
+                              .requestPermissionToSendNotifications()
+                              .then((_) => Navigator.pop(context)),
+                          child: Text('Allow',
+                              style: TextStyle(
+                                color: Colors.teal,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              )))
+                    ]));
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // TODO: implement build
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+        appBar: AppBar(
+          title: Text(widget.title),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text(
+                'This is the notification button page!',
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: createNotification, //_incrementCounter,
+          tooltip: 'Increment',
+          child: const Icon(Icons.add),
+        ));
   }
 }
