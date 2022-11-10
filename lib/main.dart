@@ -1,24 +1,48 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-
 
 //part 'index.g.dart';
 
 void main() async {
   runApp(MyApp());
-  print("ok");
-  String reminders = await idk();
-  print(reminders);
+  Reminder r1 = Reminder(isComplete: false,
+      priority: 3,
+      name: "do laundry",
+      description: "idk",
+      dateTime: DateTime.utc(2022, 6, 6).toString(),
+      repeat: "Daily");
+  Reminder r2 = Reminder(isComplete: true,
+      priority: 1,
+      name: "do homework",
+      description: "CST Homework",
+      dateTime: DateTime.utc(1944, 7, 9).toString(),
+      repeat: "Weekly");
+  List<Reminder> reminders = [r1, r2];
+  writeReminders(reminders);
 }
 
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
-  return directory.path;
+Future<List<Reminder>> readReminders() async {
+  try {
+    final file = await _localFile;
+    Iterable l = json.decode(await file.readAsString());
+    List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+    return reminders;
+  } catch (e) {
+    // If encountering an error, return 0
+    return List.empty();
+  }
+}
+
+Future<void> writeReminders(List<Reminder> reminders) async {
+  try {
+    final file = await _localFile;
+    file.writeAsString(jsonEncode(reminders));
+  } catch (e) {
+    return;
+  }
 }
 
 Future<File> get _localFile async {
@@ -26,53 +50,9 @@ Future<File> get _localFile async {
   return File('$path/index.json');
 }
 
-Future<String> writeAndRead() async {
-  try {
-    final file = await _localFile;
-    file.writeAsString('okokokokokokook');
-    return file.readAsString();
-  }
-  catch (e) {
-    return "no";
-  }
-}
-
-Future<String> idk() async {
-  try {
-    final file = await _localFile;
-    Reminder r = Reminder(isComplete: false,
-        priority: 3,
-        name: "do laundry",
-        description: "idk",
-        dateTime: DateTime.utc(1944, 6, 6).toString(),
-        repeat: "Daily");
-    print(jsonEncode(r.toJson()));
-    file.writeAsString(jsonEncode(r));
-    print("maybe");
-    final s = await file.readAsString();
-    return s;
-  } catch (e) {
-  // If encountering an error, return 0
-    return "no";
-  }
-}
-
-Future<List<Reminder>> getReminders() async {
-  try {
-    final file = await _localFile;
-    Reminder r = Reminder(isComplete: false, priority: 3, name: "do laundry", description: "idk", dateTime: DateTime.utc(1944, 6, 6).toString(), repeat: "Daily");
-
-    file.writeAsString(jsonEncode(r.toJson()));
-    final jsonString = await file.readAsString();
-
-    Iterable l = json.decode(jsonString);
-    List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
-
-    return reminders;
-  } catch (e) {
-    // If encountering an error, return 0
-    return List.empty();
-  }
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
 }
 
 class Reminder {
