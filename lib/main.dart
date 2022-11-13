@@ -1,39 +1,68 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-//import 'package:json_annotation/json_annotation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
-//import 'dart:developer';
+import 'notifications.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
-import 'notifications.dart';
-
-
-//part 'index.g.dart';
-
 void main() async {
-  AwesomeNotifications().initialize(
-      null,
-      [
-      NotificationChannel(
+  AwesomeNotifications().initialize(null, [
+    NotificationChannel(
       channelKey: 'basic_channel',
-      channelName: 'Basic notif',
-  channelDescription: 'hey',
+      channelName: 'Basic notification',
+      channelDescription: 'hey',
       importance: NotificationImportance.High,
       channelShowBadge: true,
-  )
-  ]
-  );
-      runApp(MyApp());
-  print("ok");
-  String reminders = await idk();
-  print(reminders);
+    )
+  ]);
+  runApp(const MyApp());
+  PrintReminders(await ReadReminders());
 }
 
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
-  return directory.path;
+List<Reminder> SampleReminders() {
+  Reminder r1 = Reminder(isComplete: false,
+      priority: Priority.low,
+      name: "do laundry",
+      description: "idk",
+      dateTime: DateTime.utc(2022, 6, 6).toString(),
+      repeat: Repeat.weekly);
+  Reminder r2 = Reminder(isComplete: true,
+      priority: Priority.medium,
+      name: "do homework",
+      description: "CST Homework",
+      dateTime: DateTime.utc(1944, 7, 9).toString(),
+      repeat: Repeat.daily);
+  return [r1, r2];
+}
+
+void PrintReminders(List<Reminder> reminders) {
+  for (var r in reminders) {
+    print('${r.isComplete}   Todo: ${r.name}   Priority:${r.priority.name}   Date and Time:${r.dateTime}   Repeat:${r.repeat.name}');
+  }
+}
+
+Future<List<Reminder>> ReadReminders() async {
+  try {
+    final file = await _localFile;
+    Iterable l = json.decode(await file.readAsString());
+    List<Reminder> reminders =
+    List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+    return reminders;
+  } catch (e) {
+    print(e.toString());
+    return List.empty();
+  }
+}
+
+Future<void> WriteReminders(List<Reminder> reminders) async {
+  try {
+    final file = await _localFile;
+    file.writeAsString(jsonEncode(reminders));
+  } catch (e) {
+    print(e.toString());
+    return;
+  }
 }
 
 Future<File> get _localFile async {
@@ -41,77 +70,46 @@ Future<File> get _localFile async {
   return File('$path/index.json');
 }
 
-Future<String> writeAndRead() async {
-  try {
-    final file = await _localFile;
-    file.writeAsString('okokokokokokook');
-    return file.readAsString();
-  }
-  catch (e) {
-    return "no";
-  }
+Future<String> get _localPath async {
+  final directory = await getApplicationDocumentsDirectory();
+  return directory.path;
 }
 
-Future<String> idk() async {
-  try {
-    final file = await _localFile;
-    Reminder r = Reminder(isComplete: false,
-        priority: 3,
-        name: "do laundry",
-        description: "idk",
-        dateTime: DateTime.utc(1944, 6, 6).toString(),
-        repeat: "Daily");
-    print(jsonEncode(r.toJson()));
-    file.writeAsString(jsonEncode(r));
-    print("maybe");
-    final s = await file.readAsString();
-    return s;
-  } catch (e) {
-    // If encountering an error, return 0
-    return "no";
-  }
-}
+enum Priority { none, low, medium, high }
 
-Future<List<Reminder>> getReminders() async {
-  try {
-    final file = await _localFile;
-    Reminder r = Reminder(isComplete: false, priority: 3, name: "do laundry", description: "idk", dateTime: DateTime.utc(1944, 6, 6).toString(), repeat: "Daily");
-
-    file.writeAsString(jsonEncode(r.toJson()));
-    final jsonString = await file.readAsString();
-
-    Iterable l = json.decode(jsonString);
-    List<Reminder> reminders = List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
-
-    return reminders;
-  } catch (e) {
-    // If encountering an error, return 0
-    return List.empty();
-  }
-}
+enum Repeat { never, daily, weekly, monthly, yearly }
 
 class Reminder {
-  Reminder({required this.isComplete, required this.priority, required this.name, required this.description, required this.dateTime, required this.repeat});
+  Reminder(
+      {required this.isComplete,
+        required this.priority,
+        required this.name,
+        required this.description,
+        required this.dateTime,
+        required this.repeat});
+
   bool isComplete;
-  int priority;
+  Priority priority;
   String name;
   String description;
   String dateTime;
-  String repeat;
+  Repeat repeat;
+
   Reminder.fromJson(Map<String, dynamic> json)
       : isComplete = json['isComplete'],
-        priority = json['priority'],
+        priority = Priority.values.byName(json['priority']),
         name = json['name'],
         description = json['description'],
         dateTime = json['dateTime'],
-        repeat = json['repeat'];
+        repeat = Repeat.values.byName(json['repeat']);
+
   Map<String, dynamic> toJson() => {
     'isComplete': isComplete,
-    'priority': priority,
+    'priority': priority.name,
     'name': name,
     'description': description,
     'dateTime': dateTime,
-    'repeat': repeat
+    'repeat': repeat.name
   };
 }
 
@@ -178,67 +176,60 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
-        showDialog(context: context,
-            builder: (context) =>
-                AlertDialog(title: Text('Allow Notifications'),
-                    content: Text('Our app would like to send notifications.'),
-                    actions: [TextButton(onPressed: () {
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                title: const Text('Allow Notifications'),
+                content: const Text('Our app would like to send notifications.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
                       Navigator.pop(context);
-                    }, child: Text(
-                      'Dont allow',
-                      style: TextStyle(color: Colors.amber, fontSize: 18,
+                    },
+                    child: const Text(
+                      'Don\'t allow',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 18,
                       ),
                     ),
-                    ),
-                      TextButton(
-                          onPressed: () =>
-                              AwesomeNotifications()
-                                  .requestPermissionToSendNotifications()
-                                  .then((_) => Navigator.pop(context)),
-                          child: Text(
-                              'Allow',
-                              style: TextStyle(color: Colors.teal, fontSize: 18,
-                                fontWeight: FontWeight.bold,)
-                          ))
-                    ]
-                ));
-            }
-    }
-
-        );
+                  ),
+                  TextButton(
+                      onPressed: () => AwesomeNotifications()
+                          .requestPermissionToSendNotifications()
+                          .then((_) => Navigator.pop(context)),
+                      child: const Text('Allow',
+                          style: TextStyle(
+                            color: Colors.teal,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          )))
+                ]));
       }
-
-
-
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(
-
-        title: Text(widget.title),
-    ),
-    body: Center(
-
-    child: Column(
-
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: <Widget>[
-    const Text(
-    'This is the notification button page!',
-    ),
-
-    ],
-    ),
-    ),
-
-
-    floatingActionButton: FloatingActionButton(
-    onPressed: createNotification, //_incrementCounter,
-    tooltip: 'Increment',
-    child: const Icon(Icons.add),
-    )
-    );
+          title: Text(widget.title),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const <Widget>[
+              Text(
+                'This is the notification button page!',
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: const FloatingActionButton(
+          onPressed: createNotification, //_incrementCounter,
+          tooltip: 'Increment',
+          child: Icon(Icons.add),
+        ));
   }
 }
