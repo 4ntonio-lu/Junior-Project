@@ -5,6 +5,8 @@ import 'notifications.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
+import 'package:junior_project_three/utilities.dart';
+
 
 void main() async {
   AwesomeNotifications().initialize(null, [
@@ -14,8 +16,19 @@ void main() async {
       channelDescription: 'hey',
       importance: NotificationImportance.High,
       channelShowBadge: true,
-    )
-  ]);
+    ),
+    NotificationChannel(
+      channelKey: 'schedule_channel',
+      channelName: 'Scheduled Notifications',
+      defaultColor: Colors.red,
+      channelDescription: 'timed',
+     // channelShowBadge: true,
+      locked: true,
+      importance: NotificationImportance.High,
+      //soundSource: 'resource://raw/res_custom_notification'
+    ),
+  ],
+  );
   runApp(const MyApp());
   PrintReminders(await ReadReminders());
 }
@@ -217,19 +230,34 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const <Widget>[
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                  onPressed: createNotification,
+                 // tooltip: 'Notify',
+                  child: Icon(Icons.add)),
               Text(
                 'This is the notification button page!',
               ),
-            ],
-          ),
-        ),
-        floatingActionButton: const FloatingActionButton(
-          onPressed: createNotification, //_incrementCounter,
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-        ));
+              ElevatedButton(
+                  onPressed: () async {
+                    NotificationWeekAndTime? pickedSchedule =
+                    await pickSchedule(context);
+
+                    if (pickedSchedule != null) {
+                      createReminderNotification(pickedSchedule);
+                    }
+
+
+    },  child: Icon(Icons.add),
+
+              ) ],
+
+            ),
+
+
+       ),
+    );
   }
 }
