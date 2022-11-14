@@ -230,17 +230,21 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(widget.title),
         ),
         body: Center(
+
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ElevatedButton(
-                  onPressed: createNotification,
-                 // tooltip: 'Notify',
-                  child: Icon(Icons.add)),
-              Text(
-                'This is the notification button page!',
-              ),
-              ElevatedButton(
+
+              SizedBox(width: 120, height: 80,
+              child: Container(margin: const EdgeInsets.all(10),
+                child: ElevatedButton(
+                    onPressed: createNotification,
+                    // tooltip: 'Notify',
+                    child: Icon(Icons.add)),) ,),
+
+              SizedBox(width: 120, height: 80,
+              child: Container(margin: const EdgeInsets.all(10),
+                child: ElevatedButton(
                   onPressed: () async {
                     NotificationWeekAndTime? pickedSchedule =
                     await pickSchedule(context);
@@ -248,15 +252,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (pickedSchedule != null) {
                       createReminderNotification(pickedSchedule);
                     }
+                  },  child: Icon(Icons.add),
+
+                ),)),
 
 
-    },  child: Icon(Icons.add),
-
-              ) ],
-
-            ),
-
-
+             ],
+          ),
        ),
     );
   }
