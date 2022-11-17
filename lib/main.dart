@@ -144,9 +144,16 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        //scaffoldBackgroundColor: Colors.deepPurpleAccent,
+
+
+        scaffoldBackgroundColor: const Color(0xFFa7a6ba),
+       // primaryColor: Colors.yellow[700],
+
+        primarySwatch: Colors.deepPurple,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Queue Me'),
+
     );
   }
 }
@@ -217,9 +224,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           )))
-                ]));
+                ]
+            )
+        );
       }
-    });
+    }
+    );
   }
 
   @override
@@ -240,7 +250,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: ElevatedButton(
                     onPressed: createNotification,
                     // tooltip: 'Notify',
-                    child: Icon(Icons.add)),) ,),
+                    child: Icon(Icons.add)
+                ),
+              ),
+              ),
 
               SizedBox(width: 120, height: 80,
               child: Container(margin: const EdgeInsets.all(10),
@@ -254,7 +267,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     }
                   },  child: Icon(Icons.add),
 
-                ),)),
+                ),
+              )
+              ),
 
 
              ],
