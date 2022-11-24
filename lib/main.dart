@@ -1,14 +1,20 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:junior_project_three/my_home_page.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:junior_project_three/theme.dart';
+import 'package:junior_project_three/theme_services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
-import 'notifications.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'package:junior_project_three/utilities.dart';
 
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
+
   AwesomeNotifications().initialize(null, [
     NotificationChannel(
       channelKey: 'basic_channel',
@@ -132,149 +138,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Project Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        //scaffoldBackgroundColor: Colors.deepPurpleAccent,
-
-
-        scaffoldBackgroundColor: const Color(0xFFa7a6ba),
-       // primaryColor: Colors.yellow[700],
-
-        primarySwatch: Colors.deepPurple,
-      ),
-      home: const MyHomePage(title: 'Queue Me'),
-
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-  @override
-  @override
-  void initState() {
-    super.initState();
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                title: const Text('Allow Notifications'),
-                content: const Text('Our app would like to send notifications.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      'Don\'t allow',
-                      style: TextStyle(
-                        color: Colors.amber,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                      onPressed: () => AwesomeNotifications()
-                          .requestPermissionToSendNotifications()
-                          .then((_) => Navigator.pop(context)),
-                      child: const Text('Allow',
-                          style: TextStyle(
-                            color: Colors.teal,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          )))
-                ]
-            )
-        );
-      }
-    }
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Center(
-
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-
-              SizedBox(width: 120, height: 80,
-              child: Container(margin: const EdgeInsets.all(10),
-                child: ElevatedButton(
-                    onPressed: createNotification,
-                    // tooltip: 'Notify',
-                    child: Icon(Icons.add)
-                ),
-              ),
-              ),
-
-              SizedBox(width: 120, height: 80,
-              child: Container(margin: const EdgeInsets.all(10),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    NotificationWeekAndTime? pickedSchedule =
-                    await pickSchedule(context);
-
-                    if (pickedSchedule != null) {
-                      createReminderNotification(pickedSchedule);
-                    }
-                  },  child: Icon(Icons.add),
-
-                ),
-              )
-              ),
-
-
-             ],
-          ),
-       ),
+      theme: Themes.light,
+      darkTheme: Themes.dark,
+      themeMode: ThemeServices().theme,
+      home: const MyHomePage(title: 'Ri-min-der'),
     );
   }
 }

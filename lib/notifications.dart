@@ -1,6 +1,8 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:junior_project_three/utilities.dart';
 
+
+
 Future<void> createNotification() async{
   await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -10,7 +12,20 @@ Future<void> createNotification() async{
   body: 'This is the body text.',
  // bigPicture: can include a photo here, like in the assets folder.
   notificationLayout: NotificationLayout.BigText
-  ),
+    ),
+  );
+}
+
+Future<void> createANotification({required String title, required String body}) async{
+  await AwesomeNotifications().createNotification(
+    content: NotificationContent(
+        id: 4, //call that one utilities function here? But error.
+        channelKey: 'basic_channel',
+        title: title,
+        body: body,
+        // bigPicture: can include a photo here, like in the assets folder.
+        notificationLayout: NotificationLayout.BigText
+    ),
   );
 }
 
