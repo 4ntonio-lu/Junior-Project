@@ -5,8 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:junior_project_three/button.dart';
 import 'package:junior_project_three/theme.dart';
 import 'package:junior_project_three/theme_services.dart';
+import 'package:junior_project_three/ToDoTile.dart';
 import 'package:junior_project_three/utilities.dart';
+import 'dialog_box.dart';
 import 'notifications.dart';
+import 'dialog_box.dart';
+
 
 class MyHomePage extends StatefulWidget{
   const MyHomePage({super.key, required this.title});
@@ -17,7 +21,50 @@ class MyHomePage extends StatefulWidget{
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final textcontroller = TextEditingController();
   int _counter = 0;
+  List toDoList = [
+    ["Example!", false],
+    ["Second!", false],
+  ];
+
+  void checkBoxChanged(bool value, int index) {
+    setState(() {
+      toDoList[index][1] = !toDoList[index][1];
+    });
+  }
+
+  void saveNewTask()
+  {
+    setState(() {
+      toDoList.add([textcontroller.text, false]); //obviously false, if saving you haven't finished the task
+      textcontroller.clear();
+    });
+    Navigator.of(context).pop();
+  }
+
+  // create a new task
+  void createNewTask() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return DialogBox(
+          controller: textcontroller,
+        onSave: saveNewTask,
+        onCancel: () => Navigator.of(context).pop(),
+        //  controller: _controller,
+        /////  onSave: saveNewTask,
+        //  onCancel: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
+  void deleteTask(int index) {
+    setState(() {
+      toDoList.removeAt(index);
+    });
+   // db.updateDataBase();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -72,13 +119,35 @@ class _MyHomePageState extends State<MyHomePage> {
     // TODO: implement build
     return Scaffold(
       appBar: _appBar(),
-      body: Stack(
-        children: [
-          _addDateBar(),
-          _addButtonBar(),
-        ],
-      ),
+
+
+    floatingActionButton: FloatingActionButton(
+    onPressed: createNewTask,
+    child: Icon(Icons.add),
+
+
+    ),
+
+      body: ListView.builder(
+
+          itemCount: toDoList.length,
+          itemBuilder: (context, index) {
+            return ToDoTile(
+
+              taskName: toDoList[index][0],
+              taskCompleted: toDoList[index][1],
+              onChanged: (value) => checkBoxChanged,
+             deleteFunction: (context) => deleteTask(index),
+
     );
+          }
+
+
+
+    ),
+
+    );
+
   }
 
   _addButtonBar(){
