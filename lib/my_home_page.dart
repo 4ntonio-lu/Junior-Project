@@ -8,12 +8,12 @@ import 'package:junior_project_three/theme_services.dart';
 import 'package:junior_project_three/ToDoTile.dart';
 import 'package:junior_project_three/utilities.dart';
 import 'dialog_box.dart';
+import 'main.dart';
 import 'notifications.dart';
-import 'dialog_box.dart';
 
-
-class MyHomePage extends StatefulWidget{
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
+
   final String title;
 
   @override
@@ -21,68 +21,74 @@ class MyHomePage extends StatefulWidget{
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final textcontroller = TextEditingController();
-  int _counter = 0;
-  List toDoList = [
-    ["Example!", false],
-    ["Second!", false],
-  ];
+  final textController = TextEditingController();
+  List<Reminder> reminders = [];
+
+  void loadReminders() async {
+    //WriteReminders(SampleReminders());
+    reminders = await readReminders();
+  }
+
+  void saveReminders() async {
+    writeReminders(reminders);
+    printReminders(reminders);
+  }
 
   void checkBoxChanged(bool value, int index) {
     setState(() {
-      toDoList[index][1] = !toDoList[index][1];
+      reminders[index].isComplete = !reminders[index].isComplete;
+      saveReminders();
     });
   }
 
-  void saveNewTask()
-  {
+  void saveNewReminder() {
     setState(() {
-      toDoList.add([textcontroller.text, false]); //obviously false, if saving you haven't finished the task
-      textcontroller.clear();
+      reminders.add(Reminder(
+          name: textController.text,
+          isComplete: false,
+          priority: Priority.none,
+          description: '',
+          dateTime: '',
+          repeat: Repeat.never));
+      textController.clear();
+      saveReminders();
     });
     Navigator.of(context).pop();
   }
 
   // create a new task
-  void createNewTask() {
+  void createNewReminder() {
     showDialog(
       context: context,
       builder: (context) {
         return DialogBox(
-          controller: textcontroller,
-        onSave: saveNewTask,
-        onCancel: () => Navigator.of(context).pop(),
-        //  controller: _controller,
-        /////  onSave: saveNewTask,
-        //  onCancel: () => Navigator.of(context).pop(),
+            controller: textController,
+            onSave: saveNewReminder,
+            onCancel: () => Navigator.of(context).pop()
         );
       },
     );
   }
-  void deleteTask(int index) {
-    setState(() {
-      toDoList.removeAt(index);
-    });
-   // db.updateDataBase();
-  }
 
-  void _incrementCounter() {
+  void deleteReminder(int index) {
     setState(() {
-      _counter++;
+      reminders.removeAt(index);
+      saveReminders();
     });
   }
 
   @override
   void initState() {
     super.initState();
-
+    loadReminders();
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
                 title: const Text('Allow Notifications'),
-                content: const Text('Our app would like to send notifications.'),
+                content:
+                const Text('Our app would like to send notifications.'),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -106,118 +112,107 @@ class _MyHomePageState extends State<MyHomePage> {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           )))
-                ]
-            )
-        );
+                ]));
       }
-    }
-    );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: _appBar(),
-
-
-    floatingActionButton: FloatingActionButton(
-    onPressed: createNewTask,
-    child: Icon(Icons.add),
-
-
-    ),
-
+      floatingActionButton: FloatingActionButton(
+          onPressed: createNewReminder,
+          backgroundColor: Colors.deepPurple[300],
+          child: const Icon(Icons.add)
+      ),
       body: ListView.builder(
-
-          itemCount: toDoList.length,
+          itemCount: reminders.length,
           itemBuilder: (context, index) {
             return ToDoTile(
-
-              taskName: toDoList[index][0],
-              taskCompleted: toDoList[index][1],
+              reminderName: reminders[index].name,
+              reminderCompleted: reminders[index].isComplete,
               onChanged: (value) => checkBoxChanged,
-             deleteFunction: (context) => deleteTask(index),
-
+              deleteFunction: (context) => deleteReminder(index),
+            );
+          }),
     );
-          }
-
-
-
-    ),
-
-    );
-
   }
 
-  _addButtonBar(){
+  _addButtonBar() {
     return Align(
-      alignment: Alignment.bottomCenter,
+        alignment: Alignment.bottomCenter,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(width: 150, height: 70,
-              child: Container(margin:  const EdgeInsets.all(10),
-                child:  MyButton(label: "Notify Me Now", onTap: createNotification),),),
-            SizedBox(width: 150, height: 70,
-                child: Container(margin: const EdgeInsets.all(10),
-                    child: MyButton(label: "Notify Me Later", onTap: () async {
-                      NotificationWeekAndTime? pickedSchedule =
-                      await pickSchedule(context);
+            SizedBox(
+              width: 150,
+              height: 70,
+              child: Container(
+                margin: const EdgeInsets.all(10),
+                child:
+                const MyButton(label: "Notify Me Now", onTap: createNotification),
+              ),
+            ),
+            SizedBox(
+                width: 150,
+                height: 70,
+                child: Container(
+                    margin: const EdgeInsets.all(10),
+                    child: MyButton(
+                      label: "Notify Me Later",
+                      onTap: () async {
+                        NotificationWeekAndTime? pickedSchedule =
+                        await pickSchedule(context);
 
-                      if (pickedSchedule != null) {
-                        createReminderNotification(pickedSchedule);
-                      }
-                    },))
-            )
+                        if (pickedSchedule != null) {
+                          createReminderNotification(pickedSchedule);
+                        }
+                      },
+                    )))
           ],
-        )
-    );
+        ));
   }
 
-
-  _addDateBar(){
+  _addDateBar() {
     return Container(
       margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            //margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(DateFormat.yMMMMd().format(DateTime.now()),
-                  style: subHeadingStyle,
-                ),
-                Text("Today",
-                  style: headingStyle,
-                )
-              ],
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                DateFormat.yMMMMd().format(DateTime.now()),
+                style: subHeadingStyle,
+              ),
+              Text(
+                "Today",
+                style: headingStyle,
+              )
+            ],
           ),
-          //MyButton(label: "+ Add Task", onTap: ()=>null,)
         ],
       ),
     );
   }
 
-  _appBar(){
+  _appBar() {
     return AppBar(
       elevation: 0,
       backgroundColor: context.theme.backgroundColor,
       leading: GestureDetector(
-        onTap: (){
-          var switchTheme = ThemeServices().switchTheme();
-          },
-          child: Icon(Get.isDarkMode ? Icons.wb_sunny_outlined:Icons.nightlight_round,
+        onTap: () {
+          ThemeServices().switchTheme();
+        },
+        child: Icon(
+            Get.isDarkMode ? Icons.wb_sunny_outlined : Icons.nightlight_round,
             size: 20,
-            color: Get.isDarkMode ? Colors.deepPurpleAccent[50]:Colors.deepPurple
-          ),
+            color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple),
       ),
       title: Text("Ri-min-der", style: headingTitleStyle),
       centerTitle: true,
     );
   }
-
 }

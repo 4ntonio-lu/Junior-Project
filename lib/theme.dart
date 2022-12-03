@@ -7,43 +7,37 @@ import 'package:get/get.dart';
 class Themes {
   static final light = ThemeData(
       backgroundColor: Colors.white,
-      primaryColor: Colors.deepPurple,
-      brightness: Brightness.light
-  );
+      primaryColor: Colors.deepPurple[300],
+      brightness: Brightness.light);
 
   static final dark = ThemeData(
       backgroundColor: Colors.deepPurple,
-      primaryColor: Colors.purpleAccent,
-      brightness: Brightness.dark
-  );
+      primaryColor: Colors.deepPurple[300],
+      brightness: Brightness.dark);
 }
 
-TextStyle get headingTitleStyle{
+TextStyle get headingTitleStyle {
   return GoogleFonts.lato(
       textStyle: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: Get.isDarkMode?Colors.deepPurpleAccent[50]:Colors.deepPurple
-      )
-  );
+          color: Get.isDarkMode
+              ? Colors.deepPurpleAccent[50]
+              : Colors.deepPurple));
 }
 
-TextStyle get subHeadingStyle{
+TextStyle get subHeadingStyle {
   return GoogleFonts.lato(
       textStyle: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.bold,
-          color: Get.isDarkMode?Colors.deepPurpleAccent:Colors.deepPurple
-      )
-  );
+          color: Get.isDarkMode ? Colors.deepPurpleAccent : Colors.deepPurple));
 }
 
-TextStyle get headingStyle{
+TextStyle get headingStyle {
   return GoogleFonts.lato(
       textStyle: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.bold,
-          color: Get.isDarkMode?Colors.deepPurpleAccent:Colors.deepPurple
-      )
-  );
+          color: Get.isDarkMode ? Colors.deepPurpleAccent : Colors.deepPurple));
 }

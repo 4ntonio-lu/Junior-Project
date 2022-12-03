@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ToDoTile extends StatefulWidget {
-  final String taskName;
-  bool taskCompleted;
+  final String reminderName;
+  bool reminderCompleted;
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
 
   ToDoTile({
     super.key,
-    required this.taskName,
-    required this.taskCompleted,
+    required this.reminderName,
+    required this.reminderCompleted,
     required this.onChanged,
     required this.deleteFunction,
   });
@@ -20,47 +20,45 @@ class ToDoTile extends StatefulWidget {
 }
 
 class _ToDoTileState extends State<ToDoTile> {
-
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 15),
       child: Slidable(
         endActionPane: ActionPane(
-          motion: StretchMotion(),
+          motion: const StretchMotion(),
           children: [
             SlidableAction(
               onPressed: widget.deleteFunction,
               icon: Icons.delete,
               backgroundColor: Colors.red.shade300,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(10),
             )
           ],
         ),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Colors.purpleAccent,
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.deepPurple[400],
+            borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             children: [
               // checkbox
               Checkbox(
-                value: widget.taskCompleted,
+                value: widget.reminderCompleted,
                 onChanged: (bool? value) {
                   setState(() {
-                    widget.taskCompleted = value?? false;
+                    widget.reminderCompleted = value ?? false;
                   });
                 },
                 activeColor: Colors.black,
               ),
-
               // task name
               Text(
-                widget.taskName,
+                widget.reminderName,
                 style: TextStyle(
-                  decoration: widget.taskCompleted
+                  decoration: widget.reminderCompleted
                       ? TextDecoration.lineThrough
                       : TextDecoration.none,
                 ),

@@ -4,7 +4,6 @@ int createUniqueId() {
   return DateTime.now().millisecondsSinceEpoch.remainder(100000);
 }
 
-
 class NotificationWeekAndTime {
   final int dayOfTheWeek;
   final TimeOfDay timeOfDay;
@@ -16,8 +15,8 @@ class NotificationWeekAndTime {
 }
 
 Future<NotificationWeekAndTime?> pickSchedule(
-    BuildContext context,
-    ) async {
+  BuildContext context,
+) async {
   List<String> weekdays = [
     'Mon',
     'Tue',
@@ -35,7 +34,7 @@ Future<NotificationWeekAndTime?> pickSchedule(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'I want to be reminded every:',
             textAlign: TextAlign.center,
           ),
@@ -72,7 +71,7 @@ Future<NotificationWeekAndTime?> pickSchedule(
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: Colors.teal,
               ),
             ),

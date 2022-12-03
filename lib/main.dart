@@ -10,43 +10,46 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
 
-  AwesomeNotifications().initialize(null, [
-    NotificationChannel(
-      channelKey: 'basic_channel',
-      channelName: 'Basic notification',
-      channelDescription: 'hey',
-      importance: NotificationImportance.High,
-      channelShowBadge: true,
-    ),
-    NotificationChannel(
-      channelKey: 'schedule_channel',
-      channelName: 'Scheduled Notifications',
-      defaultColor: Colors.red,
-      channelDescription: 'timed',
-     // channelShowBadge: true,
-      locked: true,
-      importance: NotificationImportance.High,
-      //soundSource: 'resource://raw/res_custom_notification'
-    ),
-  ],
+  AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic notification',
+        channelDescription: 'hey',
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+      NotificationChannel(
+        channelKey: 'schedule_channel',
+        channelName: 'Scheduled Notifications',
+        defaultColor: Colors.red,
+        channelDescription: 'timed',
+        // channelShowBadge: true,
+        locked: true,
+        importance: NotificationImportance.High,
+        //soundSource: 'resource://raw/res_custom_notification'
+      ),
+    ],
   );
   runApp(const MyApp());
-  PrintReminders(await ReadReminders());
+  printReminders(await readReminders());
 }
 
-List<Reminder> SampleReminders() {
-  Reminder r1 = Reminder(isComplete: false,
+List<Reminder> sampleReminders() {
+  Reminder r1 = Reminder(
+      isComplete: false,
       priority: Priority.low,
       name: "do laundry",
       description: "idk",
       dateTime: DateTime.utc(2022, 6, 6).toString(),
       repeat: Repeat.weekly);
-  Reminder r2 = Reminder(isComplete: true,
+  Reminder r2 = Reminder(
+      isComplete: true,
       priority: Priority.medium,
       name: "do homework",
       description: "CST Homework",
@@ -55,18 +58,19 @@ List<Reminder> SampleReminders() {
   return [r1, r2];
 }
 
-void PrintReminders(List<Reminder> reminders) {
+void printReminders(List<Reminder> reminders) {
   for (var r in reminders) {
-    print('${r.isComplete}   Todo: ${r.name}   Priority:${r.priority.name}   Date and Time:${r.dateTime}   Repeat:${r.repeat.name}');
+    print(
+        '${r.isComplete}   Todo: ${r.name}   Priority:${r.priority.name}   Date and Time:${r.dateTime}   Repeat:${r.repeat.name}');
   }
 }
 
-Future<List<Reminder>> ReadReminders() async {
+Future<List<Reminder>> readReminders() async {
   try {
     final file = await _localFile;
     Iterable l = json.decode(await file.readAsString());
     List<Reminder> reminders =
-    List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+        List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
     return reminders;
   } catch (e) {
     print(e.toString());
@@ -74,7 +78,7 @@ Future<List<Reminder>> ReadReminders() async {
   }
 }
 
-Future<void> WriteReminders(List<Reminder> reminders) async {
+Future<void> writeReminders(List<Reminder> reminders) async {
   try {
     final file = await _localFile;
     file.writeAsString(jsonEncode(reminders));
@@ -101,11 +105,11 @@ enum Repeat { never, daily, weekly, monthly, yearly }
 class Reminder {
   Reminder(
       {required this.isComplete,
-        required this.priority,
-        required this.name,
-        required this.description,
-        required this.dateTime,
-        required this.repeat});
+      required this.priority,
+      required this.name,
+      required this.description,
+      required this.dateTime,
+      required this.repeat});
 
   bool isComplete;
   Priority priority;
@@ -123,13 +127,13 @@ class Reminder {
         repeat = Repeat.values.byName(json['repeat']);
 
   Map<String, dynamic> toJson() => {
-    'isComplete': isComplete,
-    'priority': priority.name,
-    'name': name,
-    'description': description,
-    'dateTime': dateTime,
-    'repeat': repeat.name
-  };
+        'isComplete': isComplete,
+        'priority': priority.name,
+        'name': name,
+        'description': description,
+        'dateTime': dateTime,
+        'repeat': repeat.name
+      };
 }
 
 class MyApp extends StatelessWidget {
