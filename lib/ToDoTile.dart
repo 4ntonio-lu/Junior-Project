@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
-class ToDoTile extends StatelessWidget {
+class ToDoTile extends StatefulWidget {
   final String taskName;
-  final bool taskCompleted;
+  bool taskCompleted;
   Function(bool?)? onChanged;
   Function(BuildContext)? deleteFunction;
 
@@ -16,6 +16,12 @@ class ToDoTile extends StatelessWidget {
   });
 
   @override
+  State<ToDoTile> createState() => _ToDoTileState();
+}
+
+class _ToDoTileState extends State<ToDoTile> {
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 25.0, right: 25, top: 25),
@@ -24,7 +30,7 @@ class ToDoTile extends StatelessWidget {
           motion: StretchMotion(),
           children: [
             SlidableAction(
-              onPressed: deleteFunction,
+              onPressed: widget.deleteFunction,
               icon: Icons.delete,
               backgroundColor: Colors.red.shade300,
               borderRadius: BorderRadius.circular(12),
@@ -41,16 +47,20 @@ class ToDoTile extends StatelessWidget {
             children: [
               // checkbox
               Checkbox(
-                value: taskCompleted,
-                onChanged: onChanged,
+                value: widget.taskCompleted,
+                onChanged: (bool? value) {
+                  setState(() {
+                    widget.taskCompleted = value?? false;
+                  });
+                },
                 activeColor: Colors.black,
               ),
 
               // task name
               Text(
-                taskName,
+                widget.taskName,
                 style: TextStyle(
-                  decoration: taskCompleted
+                  decoration: widget.taskCompleted
                       ? TextDecoration.lineThrough
                       : TextDecoration.none,
                 ),
