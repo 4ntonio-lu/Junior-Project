@@ -121,10 +121,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
-      floatingActionButton: FloatingActionButton(
-          onPressed: createNewReminder,
-          backgroundColor: Colors.deepPurple[300],
-          child: const Icon(Icons.add)
+      // add task button
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(5.0),
+        child: FloatingActionButton(
+            onPressed: createNewReminder,
+            backgroundColor: Get.isDarkMode?Colors.deepPurpleAccent:Colors.deepPurple,
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.add)
+        ),
       ),
       body: ListView.builder(
           itemCount: reminders.length,
@@ -136,6 +141,60 @@ class _MyHomePageState extends State<MyHomePage> {
               deleteFunction: (context) => deleteReminder(index),
             );
           }),
+      // bottom nave bar, contains two icons, one for immediate notification, one for a scheduled notification
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: context.theme.backgroundColor,
+        shape: CircularNotchedRectangle(),
+        notchMargin: 3,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            // immediate notification icon and text label
+            Container(
+              padding: EdgeInsets.only(left: 30),
+              child: Row(
+              children: [
+                Text("Now", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                IconButton(
+                  icon: Icon(
+                    Icons.doorbell_outlined,
+                    color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
+
+                ),
+                onPressed: createNotification
+              )
+                ],
+              ),
+            ),
+            // scheduled notification icon and text label
+            Container(
+              padding: EdgeInsets.only(right: 30),
+              child: Row(
+                children: [
+                  IconButton(
+                      icon: Icon(
+                        Icons.doorbell_outlined,
+                        color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
+
+                      ),
+                      onPressed: () async {
+                        NotificationWeekAndTime? pickedSchedule =
+                        await pickSchedule(context);
+
+                        if (pickedSchedule != null) {
+                          createReminderNotification(pickedSchedule);
+                        }
+                      }
+                  ),
+                  Text("Later", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                ],
+              ),
+            ),
+          ]
+        ),
+      ),
     );
   }
 
