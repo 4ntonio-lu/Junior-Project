@@ -70,11 +70,11 @@ Future<List<Reminder>> readReminders() async {
     final file = await _localFile;
     Iterable l = json.decode(await file.readAsString());
     List<Reminder> reminders =
-        List<Reminder>.from(l.map((model) => Reminder.fromJson(model)));
+        List<Reminder>.from(l.map((model) => Reminder.fromJson(model)), growable: true);
     return reminders;
   } catch (e) {
     print(e.toString());
-    return List.empty();
+    return List.empty(growable: true);
   }
 }
 
