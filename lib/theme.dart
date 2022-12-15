@@ -41,3 +41,11 @@ TextStyle get headingStyle {
           fontWeight: FontWeight.bold,
           color: Get.isDarkMode ? Colors.deepPurpleAccent : Colors.deepPurple));
 }
+
+TextStyle get todayStyle {
+  return GoogleFonts.lato(
+      textStyle: TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+          color: Get.isDarkMode ? Colors.white : Colors.deepPurple));
+}

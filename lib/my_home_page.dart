@@ -84,10 +84,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     loadReminders();
-    // play confetti
-    confettiController.addListener(() {
-      isPlaying = confettiController.state == ConfettiControllerState.playing;
-    });
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
         showDialog(
@@ -141,17 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: const Icon(Icons.add)
             ),
           ),
-          body: ListView.builder(
-              itemCount: reminders.length,
-              itemBuilder: (context, index) {
-                return ToDoTile(
-                  reminderName: reminders[index].name,
-                  reminderCompleted: reminders[index].isComplete,
-                  onChanged: (value) => checkBoxChanged,
-                  deleteFunction: (context) => deleteReminder(index),
-                  confettiCtl: confettiController,
-                );
-              }),
+          body: _addAppBody(),
           // bottom nave bar, contains two icons, one for immediate notification, one for a scheduled notification
           floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           bottomNavigationBar: BottomAppBar(
@@ -167,17 +153,14 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: EdgeInsets.only(left: 30),
                   child: Row(
                   children: [
-                    Text("Now", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                    Text("Now", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple, fontSize: 15),),
                     IconButton(
                       icon: Icon(
                         Icons.doorbell_outlined,
                         color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
-
+                        size: 30,
                     ),
                     onPressed: createNotification
-                      //onPressed: () {if(isPlaying) {confettiController.stop();}
-                      //else {confettiController.play();}
-                        //},
                   )
                     ],
                   ),
@@ -191,7 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           icon: Icon(
                             Icons.doorbell_outlined,
                             color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
-
+                            size: 30,
                           ),
                           onPressed: () async {
                             NotificationWeekAndTime? pickedSchedule =
@@ -202,7 +185,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             }
                           }
                       ),
-                      Text("Later", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                      Text("Later", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple, fontSize: 15),),
                     ],
                   ),
                 ),
@@ -210,12 +193,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        ConfettiWidget(
-          confettiController: confettiController,
-          shouldLoop: false,
-          blastDirectionality: BlastDirectionality.explosive,
-          numberOfParticles: 50,
-        )
       ],
     );
   }
@@ -257,21 +234,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _addDateBar() {
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, top: 10),
+      margin: const EdgeInsets.only(left: 10, right: 20, top: 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
+                "Today: " + DateFormat.yMMMMd().format(DateTime.now()),
+                style: todayStyle,
+              ),
+              /*
+              Text(
                 DateFormat.yMMMMd().format(DateTime.now()),
                 style: subHeadingStyle,
               ),
-              Text(
-                "Today",
-                style: headingStyle,
-              )
+               */
             ],
           ),
         ],
@@ -294,6 +273,35 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       title: Text("Ri-min-der", style: headingTitleStyle),
       centerTitle: true,
+    );
+  }
+
+_addAppBody() {
+    return Column(
+      children: [
+        Expanded(
+          flex: 1,
+            child: _addDateBar()),
+        Expanded(
+          flex: 10,
+            child: ListView(
+              children: [
+                SizedBox(
+                  height: 500,
+                  child: ListView.builder(
+                    itemCount: reminders.length,
+                    itemBuilder: (context, index) {
+                      return ToDoTile(
+                        reminderName: reminders[index].name,
+                        reminderCompleted: reminders[index].isComplete,
+                        onChanged: (value) => checkBoxChanged,
+                        deleteFunction: (context) => deleteReminder(index),
+                        confettiCtl: confettiController,
+                      );
+                    }),
+              ),
+            ],),)
+      ],
     );
   }
 }

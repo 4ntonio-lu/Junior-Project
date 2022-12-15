@@ -12,11 +12,6 @@ class ToDoTile extends StatefulWidget {
   Function(BuildContext)? deleteFunction;
   final confettiCtl;
 
-  _play()
-  {
-    confettiCtl.play();
-  }
-
   ToDoTile({
     super.key,
     required this.reminderName,
@@ -31,8 +26,7 @@ class ToDoTile extends StatefulWidget {
 }
 
 class _ToDoTileState extends State<ToDoTile> {
-  late final confettiCtl = ConfettiController(duration: const Duration(seconds: 1));
-  bool isChecked = false;
+  late final confettiCtl = ConfettiController(duration: const Duration(milliseconds: 250));
 
   @override
   Widget build(BuildContext context) {
@@ -48,20 +42,12 @@ class _ToDoTileState extends State<ToDoTile> {
               backgroundColor: Colors.red.shade300,
               borderRadius: BorderRadius.circular(10),
             ),
-            /*
-            SlidableAction(
-              onPressed: widget.deleteFunction,
-              icon: Icons.check,
-              backgroundColor: Colors.green,
-              borderRadius: BorderRadius.circular(10),
-            )
-            */
           ],
         ),
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Colors.deepPurple[400],
+            color: Get.isDarkMode ? Colors.deepPurple : Colors.deepPurpleAccent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -87,6 +73,8 @@ class _ToDoTileState extends State<ToDoTile> {
                   decoration: widget.reminderCompleted
                       ? TextDecoration.lineThrough
                       : TextDecoration.none,
+                  color: widget.reminderCompleted ? Colors.red : Get.isDarkMode?Colors.white:Colors.black,
+                  fontSize: 20,
                 ),
               ),
           ConfettiWidget(
