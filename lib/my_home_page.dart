@@ -10,6 +10,7 @@ import 'package:junior_project_three/utilities.dart';
 import 'dialog_box.dart';
 import 'main.dart';
 import 'notifications.dart';
+import 'package:confetti/confetti.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -23,6 +24,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final textController = TextEditingController();
   List<Reminder> reminders = [];
+  bool isPlaying = true;
+  late final confettiController = ConfettiController(duration: const Duration(seconds: 3));
 
   void loadReminders() async {
     //WriteReminders(SampleReminders());
@@ -81,6 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     loadReminders();
+    // play confetti
+    confettiController.addListener(() {
+      isPlaying = confettiController.state == ConfettiControllerState.playing;
+    });
     AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
         showDialog(
@@ -119,82 +126,97 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar(),
-      // add task button
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(5.0),
-        child: FloatingActionButton(
-            onPressed: createNewReminder,
-            backgroundColor: Get.isDarkMode?Colors.deepPurpleAccent:Colors.deepPurple,
-            foregroundColor: Colors.white,
-            child: const Icon(Icons.add)
-        ),
-      ),
-      body: ListView.builder(
-          itemCount: reminders.length,
-          itemBuilder: (context, index) {
-            return ToDoTile(
-              reminderName: reminders[index].name,
-              reminderCompleted: reminders[index].isComplete,
-              onChanged: (value) => checkBoxChanged,
-              deleteFunction: (context) => deleteReminder(index),
-            );
-          }),
-      // bottom nave bar, contains two icons, one for immediate notification, one for a scheduled notification
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        color: context.theme.backgroundColor,
-        shape: CircularNotchedRectangle(),
-        notchMargin: 3,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            // immediate notification icon and text label
-            Container(
-              padding: EdgeInsets.only(left: 30),
-              child: Row(
-              children: [
-                Text("Now", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
-                IconButton(
-                  icon: Icon(
-                    Icons.doorbell_outlined,
-                    color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
-
-                ),
-                onPressed: createNotification
-              )
-                ],
-              ),
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Scaffold(
+          appBar: _appBar(),
+          // add task button
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: FloatingActionButton(
+                onPressed: createNewReminder,
+                backgroundColor: Get.isDarkMode?Colors.deepPurpleAccent:Colors.deepPurple,
+                foregroundColor: Colors.white,
+                child: const Icon(Icons.add)
             ),
-            // scheduled notification icon and text label
-            Container(
-              padding: EdgeInsets.only(right: 30),
-              child: Row(
-                children: [
-                  IconButton(
+          ),
+          body: ListView.builder(
+              itemCount: reminders.length,
+              itemBuilder: (context, index) {
+                return ToDoTile(
+                  reminderName: reminders[index].name,
+                  reminderCompleted: reminders[index].isComplete,
+                  onChanged: (value) => checkBoxChanged,
+                  deleteFunction: (context) => deleteReminder(index),
+                  confettiCtl: confettiController,
+                );
+              }),
+          // bottom nave bar, contains two icons, one for immediate notification, one for a scheduled notification
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: BottomAppBar(
+            color: context.theme.backgroundColor,
+            shape: CircularNotchedRectangle(),
+            notchMargin: 3,
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                // immediate notification icon and text label
+                Container(
+                  padding: EdgeInsets.only(left: 30),
+                  child: Row(
+                  children: [
+                    Text("Now", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                    IconButton(
                       icon: Icon(
                         Icons.doorbell_outlined,
                         color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
 
-                      ),
-                      onPressed: () async {
-                        NotificationWeekAndTime? pickedSchedule =
-                        await pickSchedule(context);
-
-                        if (pickedSchedule != null) {
-                          createReminderNotification(pickedSchedule);
-                        }
-                      }
+                    ),
+                    onPressed: createNotification
+                      //onPressed: () {if(isPlaying) {confettiController.stop();}
+                      //else {confettiController.play();}
+                        //},
+                  )
+                    ],
                   ),
-                  Text("Later", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
-                ],
-              ),
+                ),
+                // scheduled notification icon and text label
+                Container(
+                  padding: EdgeInsets.only(right: 30),
+                  child: Row(
+                    children: [
+                      IconButton(
+                          icon: Icon(
+                            Icons.doorbell_outlined,
+                            color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,
+
+                          ),
+                          onPressed: () async {
+                            NotificationWeekAndTime? pickedSchedule =
+                            await pickSchedule(context);
+
+                            if (pickedSchedule != null) {
+                              createReminderNotification(pickedSchedule);
+                            }
+                          }
+                      ),
+                      Text("Later", style: TextStyle(color: Get.isDarkMode ? Colors.deepPurpleAccent[50] : Colors.deepPurple,),),
+                    ],
+                  ),
+                ),
+              ]
             ),
-          ]
+          ),
         ),
-      ),
+        ConfettiWidget(
+          confettiController: confettiController,
+          shouldLoop: false,
+          blastDirectionality: BlastDirectionality.explosive,
+          numberOfParticles: 50,
+        )
+      ],
     );
   }
 

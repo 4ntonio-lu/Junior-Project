@@ -45,6 +45,7 @@ dependencies:
   get: ^4.6.5
   intl: ^0.17.0
   google_fonts: ^3.0.1
+  confetti: ^0.6.0
 
 dev_dependencies:
   flutter_test:

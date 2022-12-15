@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'my_button.dart';
+import 'package:get/get.dart';
 
 class DialogBox extends StatelessWidget {
   final controller;
@@ -16,7 +18,7 @@ class DialogBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.grey[700],
+      backgroundColor: Get.isDarkMode?Colors.deepPurpleAccent:Colors.white,
       content: SizedBox(
           height: 120,
           child: Column(
